@@ -1,7 +1,9 @@
 #include <spdlog/spdlog.h>
 
 #include <cstring>
-#include <fstream>
+
+#include <mcap/reader.hpp>
+#include <mcap/writer.hpp>
 
 #include "pointcloud2.hpp"
 
@@ -18,7 +20,7 @@ int main(int argc, char** argv) {
   }
   std::string mode = argv[1];
   std::string file = argv[2];
-  if (mode == "write") {
+  auto make_sample_cloud = []() {
     PointCloud2 cloud;
     cloud.header.frame_id = "map";
     cloud.height = 1;
@@ -36,24 +38,51 @@ int main(int argc, char** argv) {
     cloud.data.resize(cloud.row_step * cloud.height);
     float points[6] = {0.f, 0.f, 0.f, 1.f, 2.f, 3.f};
     std::memcpy(cloud.data.data(), points, sizeof(points));
+    return cloud;
+  };
 
+  if (mode == "write") {
+    PointCloud2 cloud = make_sample_cloud();
     auto buffer = serialize(cloud);
-    std::ofstream ofs(file, std::ios::binary);
-    ofs.write(reinterpret_cast<const char*>(buffer.data()), buffer.size());
-    spdlog::info("Wrote {} bytes", buffer.size());
-    return 0;
-  } else if (mode == "read") {
-    std::ifstream ifs(file, std::ios::binary);
-    if (!ifs) {
-      spdlog::error("Failed to open file");
+    mcap::McapWriter writer;
+    mcap::McapWriterOptions options("");
+    options.compression = mcap::Compression::Zstd;
+    if (!writer.open(file, options).ok()) {
+      spdlog::error("Failed to open MCAP file for writing");
       return 1;
     }
-    std::vector<uint8_t> buffer((std::istreambuf_iterator<char>(ifs)),
-                                std::istreambuf_iterator<char>());
-    PointCloud2 cloud = deserialize(buffer);
-    spdlog::info("Cloud width: {} height: {} fields: {} points: {}",
-                 cloud.width, cloud.height, cloud.fields.size(),
-                 cloud.width * cloud.height);
+    mcap::Channel channel("pointcloud", "cdr", 0);
+    writer.addChannel(channel);
+    mcap::Message message;
+    message.channelId = channel.id;
+    message.sequence = 0;
+    message.logTime = 0;
+    message.publishTime = 0;
+    message.dataSize = buffer.size();
+    message.data = reinterpret_cast<const std::byte*>(buffer.data());
+    if (!writer.write(message).ok()) {
+      spdlog::error("Failed to write message");
+      return 1;
+    }
+    writer.close();
+    spdlog::info("Wrote MCAP message size {}", buffer.size());
+    return 0;
+  } else if (mode == "read") {
+    mcap::McapReader reader;
+    if (!reader.open(file).ok()) {
+      spdlog::error("Failed to open MCAP file");
+      return 1;
+    }
+    auto view = reader.readMessages();
+    for (const auto& msgView : view) {
+      std::vector<uint8_t> data(msgView.message.dataSize);
+      std::memcpy(data.data(), msgView.message.data, msgView.message.dataSize);
+      PointCloud2 cloud = deserialize(data);
+      spdlog::info("Cloud width: {} height: {} fields: {} points: {}",
+                   cloud.width, cloud.height, cloud.fields.size(),
+                   cloud.width * cloud.height);
+      break;
+    }
     return 0;
   } else {
     print_usage();
