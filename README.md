@@ -20,15 +20,15 @@ ctest --test-dir build
 
 ## Usage
 
-Write a sample point cloud to `cloud.bin`:
+Write a sample point cloud to an MCAP file:
 
 ```bash
-./pointcloud_tool write cloud.bin
+./pointcloud_tool write cloud.mcap
 ```
 
-Read a cloud back from file:
+Read a cloud back from an MCAP file:
 
 ```bash
-./pointcloud_tool read cloud.bin
+./pointcloud_tool read cloud.mcap
 ```
 
