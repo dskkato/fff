@@ -1,7 +1,6 @@
 #include <catch2/catch_test_macros.hpp>
-#include <cstring>
 #include <cstdio>
-
+#include <cstring>
 #include <mcap/reader.hpp>
 #include <mcap/writer.hpp>
 

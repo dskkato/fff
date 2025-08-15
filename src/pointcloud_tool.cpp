@@ -1,7 +1,6 @@
 #include <spdlog/spdlog.h>
 
 #include <cstring>
-
 #include <mcap/reader.hpp>
 #include <mcap/writer.hpp>
 
