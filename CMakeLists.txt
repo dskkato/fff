@@ -13,22 +13,19 @@ include(FetchContent)
 
 FetchContent_Declare(
   fastcdr
-  GIT_REPOSITORY https://github.com/eProsima/Fast-CDR.git
-  GIT_TAG v1.0.24
+  URL https://github.com/eProsima/Fast-CDR/archive/refs/tags/v1.0.24.tar.gz
 )
 FetchContent_MakeAvailable(fastcdr)
 
 FetchContent_Declare(
   spdlog
-  GIT_REPOSITORY https://github.com/gabime/spdlog.git
-  GIT_TAG v1.11.0
+  URL https://github.com/gabime/spdlog/archive/refs/tags/v1.11.0.tar.gz
 )
 FetchContent_MakeAvailable(spdlog)
 
 FetchContent_Declare(
   zstd
-  GIT_REPOSITORY https://github.com/facebook/zstd.git
-  GIT_TAG v1.5.5
+  URL https://github.com/facebook/zstd/archive/refs/tags/v1.5.5.tar.gz
 )
 FetchContent_GetProperties(zstd)
 if(NOT zstd_POPULATED)
@@ -40,8 +37,7 @@ endif()
 
 FetchContent_Declare(
   mcap
-  GIT_REPOSITORY https://github.com/foxglove/mcap.git
-  GIT_TAG 2d0375da587ff78d4c8c4c1d8334c8c6efb1c0d7
+  URL https://github.com/foxglove/mcap/archive/refs/tags/releases/cpp/v2.0.2.tar.gz
 )
 FetchContent_GetProperties(mcap)
 if(NOT mcap_POPULATED)
@@ -63,8 +59,7 @@ target_compile_options(pointcloud_tool PRIVATE -Wall -Werror)
 
 FetchContent_Declare(
   Catch2
-  GIT_REPOSITORY https://github.com/catchorg/Catch2.git
-  GIT_TAG v3.4.0
+  URL https://github.com/catchorg/Catch2/archive/refs/tags/v3.4.0.tar.gz
 )
 FetchContent_MakeAvailable(Catch2)
 
