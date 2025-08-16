@@ -65,7 +65,7 @@ PointCloud2 deserialize(const std::vector<uint8_t> &buffer) {
     // assuming no encapsulation is present.
     try {
       des.read_encapsulation();
-    } catch (const eprosima::fastcdr::exception::Exception &) {
+    } catch (const eprosima::fastcdr::exception::BadParamException &) {
       // Reset to the start if no encapsulation header is present so that
       // deserialization proceeds with the original layout.
       des.reset();
