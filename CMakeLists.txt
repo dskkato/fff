@@ -3,6 +3,12 @@ project(pointcloud_tool)
 
 set(CMAKE_CXX_STANDARD 17)
 
+# Option to control whether to build shared or static libraries.
+# By default we build static libraries so the final executable can be a
+# self-contained binary without external `.so` dependencies. Users can enable
+# shared libraries via `-DBUILD_SHARED_LIBS=ON`.
+option(BUILD_SHARED_LIBS "Build project libraries as shared" OFF)
+
 include(FetchContent)
 
 FetchContent_Declare(

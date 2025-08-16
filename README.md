@@ -12,6 +12,14 @@ cmake ..
 make
 ```
 
+The default build links all project components statically so `pointcloud_tool`
+does not depend on accompanying `.so` files. If shared libraries are desired,
+enable them explicitly when configuring CMake:
+
+```bash
+cmake -DBUILD_SHARED_LIBS=ON ..
+```
+
 Run unit tests:
 
 ```bash
