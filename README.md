@@ -40,3 +40,9 @@ Read a cloud back from an MCAP file:
 ./pointcloud_tool read cloud.mcap
 ```
 
+Filter messages by topic name when reading:
+
+```bash
+./pointcloud_tool read cloud.mcap --topic pointcloud
+```
+

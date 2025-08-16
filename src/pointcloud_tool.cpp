@@ -3,13 +3,15 @@
 #include <cstring>
 #include <mcap/reader.hpp>
 #include <mcap/writer.hpp>
+#include <optional>
 
 #include "pointcloud2.hpp"
 
 using namespace pc2;
 
 void print_usage() {
-  spdlog::info("Usage: pointcloud_tool [write <file>|read <file>]");
+  spdlog::info(
+      "Usage: pointcloud_tool [write <file>|read <file> [--topic <name>]]");
 }
 
 int main(int argc, char** argv) {
@@ -67,6 +69,14 @@ int main(int argc, char** argv) {
     spdlog::info("Wrote MCAP message size {}", buffer.size());
     return 0;
   } else if (mode == "read") {
+    std::optional<std::string> topic;
+    for (int i = 3; i < argc; ++i) {
+      std::string arg = argv[i];
+      if (arg == "--topic" && i + 1 < argc) {
+        topic = argv[++i];
+      }
+    }
+
     mcap::McapReader reader;
     if (!reader.open(file).ok()) {
       spdlog::error("Failed to open MCAP file");
@@ -74,15 +84,19 @@ int main(int argc, char** argv) {
     }
     auto view = reader.readMessages();
     for (const auto& msgView : view) {
+      if (topic && msgView.channel->topic != *topic) {
+        continue;
+      }
       std::vector<uint8_t> data(msgView.message.dataSize);
       std::memcpy(data.data(), msgView.message.data, msgView.message.dataSize);
       PointCloud2 cloud = deserialize(data);
       spdlog::info("Cloud width: {} height: {} fields: {} points: {}",
                    cloud.width, cloud.height, cloud.fields.size(),
                    cloud.width * cloud.height);
-      break;
+      return 0;
     }
-    return 0;
+    spdlog::warn("No matching messages found");
+    return 1;
   } else {
     print_usage();
     return 1;
