@@ -20,6 +20,19 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(spdlog)
 
 FetchContent_Declare(
+  zstd
+  GIT_REPOSITORY https://github.com/facebook/zstd.git
+  GIT_TAG v1.5.5
+)
+FetchContent_GetProperties(zstd)
+if(NOT zstd_POPULATED)
+  FetchContent_Populate(zstd)
+  set(ZSTD_BUILD_PROGRAMS OFF CACHE BOOL "" FORCE)
+  set(ZSTD_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+  add_subdirectory(${zstd_SOURCE_DIR}/build/cmake ${zstd_BINARY_DIR})
+endif()
+
+FetchContent_Declare(
   mcap
   GIT_REPOSITORY https://github.com/foxglove/mcap.git
   GIT_TAG 2d0375da587ff78d4c8c4c1d8334c8c6efb1c0d7
@@ -28,10 +41,9 @@ FetchContent_GetProperties(mcap)
 if(NOT mcap_POPULATED)
   FetchContent_Populate(mcap)
 endif()
-find_package(zstd REQUIRED)
 add_library(mcap src/mcap.cpp)
 target_include_directories(mcap PUBLIC ${mcap_SOURCE_DIR}/cpp/mcap/include)
-target_link_libraries(mcap PUBLIC zstd::libzstd_shared)
+target_link_libraries(mcap PUBLIC libzstd_static)
 target_compile_definitions(mcap PUBLIC MCAP_COMPRESSION_NO_LZ4)
 
 add_library(pointcloud2 src/pointcloud2.cpp)
