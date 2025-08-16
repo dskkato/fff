@@ -11,12 +11,12 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y g++ cmake clang-format python3-pip
+          sudo apt-get install -y g++ cmake clang-format python3-pip ninja-build
           pip install pre-commit
       - name: pre-commit
         run: pre-commit run --files $(git ls-files '*.hpp' '*.cpp')
       - name: Configure
-        run: cmake -B build -S .
+        run: cmake -B build -S . -G Ninja
       - name: Build
         run: cmake --build build
       - name: Test
