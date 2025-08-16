@@ -3,6 +3,14 @@ project(pointcloud_tool)
 
 set(CMAKE_CXX_STANDARD 17)
 
+# Always enable colorized compiler diagnostics when using Ninja. This helps
+# warnings and errors stand out in build logs for both GCC and Clang.
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  add_compile_options(-fdiagnostics-color=always)
+elseif(CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+  add_compile_options(-fcolor-diagnostics)
+endif()
+
 # Option to control whether to build shared or static libraries.
 # By default we build static libraries so the final executable can be a
 # self-contained binary without external `.so` dependencies. Users can enable
