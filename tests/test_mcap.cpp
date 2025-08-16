@@ -53,12 +53,17 @@ TEST_CASE("mcap_write_read_roundtrip") {
   REQUIRE(reader.open("test.mcap").ok());
   auto view = reader.readMessages();
   PointCloud2 restored;
+  bool foundByTopic = false;
   for (const auto& msgView : view) {
+    if (msgView.channel->topic == "pointcloud") {
+      foundByTopic = true;
+    }
     std::vector<uint8_t> data(msgView.message.dataSize);
     std::memcpy(data.data(), msgView.message.data, msgView.message.dataSize);
     restored = deserialize(data);
     break;
   }
   REQUIRE(restored.data == cloud.data);
+  REQUIRE(foundByTopic);
   std::remove("test.mcap");
 }
