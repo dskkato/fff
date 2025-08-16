@@ -2,7 +2,7 @@
 
 #include <fastcdr/Cdr.h>
 #include <fastcdr/FastBuffer.h>
-#include <fastcdr/exceptions/Exception.h>
+#include <fastcdr/exceptions/BadParamException.h>
 
 #include <stdexcept>
 
