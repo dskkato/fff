@@ -16,9 +16,13 @@ std::vector<uint8_t> serialize(const PointCloud2 &msg) {
   size_t size = msg.data.size() + msg.fields.size() * 100 + 1024;
   std::vector<uint8_t> buffer(size);
   FastBuffer fb(reinterpret_cast<char *>(buffer.data()), buffer.size());
-  Cdr ser(fb);
+  // Use DDS CDR serialization with encapsulation to match ROS 2 messages
+  Cdr ser(fb, Cdr::DEFAULT_ENDIAN, Cdr::DDS_CDR);
 
   try {
+    // Write the standard CDR encapsulation header so that the resulting
+    // buffer can be consumed by ROS 2 tooling which expects it.
+    ser.serialize_encapsulation();
     ser << msg.header.stamp.sec;
     ser << msg.header.stamp.nanosec;
     ser << msg.header.frame_id;
@@ -50,10 +54,23 @@ std::vector<uint8_t> serialize(const PointCloud2 &msg) {
 PointCloud2 deserialize(const std::vector<uint8_t> &buffer) {
   FastBuffer fb(reinterpret_cast<char *>(const_cast<uint8_t *>(buffer.data())),
                 buffer.size());
-  Cdr des(fb);
+  // Use DDS CDR deserialization and consume encapsulation to properly
+  // interpret buffers produced by ROS 2.
+  Cdr des(fb, Cdr::DEFAULT_ENDIAN, Cdr::DDS_CDR);
   PointCloud2 msg;
 
   try {
+    // Attempt to read the encapsulation header. If the buffer was produced
+    // without encapsulation this will throw, in which case we fall back to
+    // assuming no encapsulation is present.
+    try {
+      des.read_encapsulation();
+    } catch (const eprosima::fastcdr::exception::BadParamException &) {
+      // Reset to the start if no encapsulation header is present so that
+      // deserialization proceeds with the original layout.
+      des.reset();
+    }
+
     des >> msg.header.stamp.sec;
     des >> msg.header.stamp.nanosec;
     des >> msg.header.frame_id;
