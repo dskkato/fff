@@ -1,8 +1,10 @@
-# PointCloud2 CDR Tool
+# ROS 2 MCAP Decoder Sample
 
-This project provides a small C++ utility to serialize and deserialize
-ROS 2 `PointCloud2` messages using CDR encoding without relying on the
-full ROS 2 stack or large middleware implementations.
+This repository demonstrates decoding ROS 2 MCAP files without
+depending on the full ROS 2 stack. It provides a minimal C++ CMake
+project that uses [mcap](https://github.com/foxglove/mcap) and
+[Fast-CDR](https://github.com/eProsima/Fast-CDR) to work with
+`PointCloud2` messages.
 
 ## Building
 
